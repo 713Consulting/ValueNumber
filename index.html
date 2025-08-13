@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Value Number™ (VN) — Make Better Decisions</title>
+  <meta name="description" content="Calculate the Value Number™ to decide whether to adopt a new method or make a new purchase. Revolutionary decision-making framework by Keith Bolden.">
+  
+  <!-- Favicon - VN Logo -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%238b5cf6'/><stop offset='100%25' style='stop-color:%23ec4899'/></linearGradient></defs><rect x='20' y='15' width='25' height='8' fill='url(%23g)'/><rect x='20' y='15' width='8' height='25' fill='%23d946ef'/><rect x='55' y='30' width='25' height='8' fill='url(%23g)'/><rect x='55' y='30' width='8' height='25' fill='%23d946ef'/><rect x='35' y='50' width='30' height='8' fill='url(%23g)'/><rect x='35' y='50' width='8' height='35' fill='%23d946ef'/></svg>">
+  
+  <style>
+    :root {
+      --accent: #ec4899;
+      --secondary: #8b5cf6;
+      --bg: #0e1116;
+      --fg: #e8edf2;
+      --muted: #9fb1c6;
+      --card: #171b22;
+      --good: #2ecc71;
+      --warn: #ffb020;
+      --bad: #ff6b6b;
+      --gradient: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* VN Logo Styles */
+    .vn-logo-iso {
+      width: 40px;
+      height: 40px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .vn-logo-iso svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .vn-logo {
+      display: inline-flex;
+      align-items: center;
+      font-weight: 900;
+      font-size: 24px;
+      letter-spacing: -1px;
+      gap: 12px;
+    }
+    
+    /* Invitation Gate */
+    .invitation-gate {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(14,17,22,0.98) 0%, rgba(23,27,34,0.98) 100%);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease;
+    }
+    
+    .invitation-card {
+      background: var(--card);
+      border: 2px solid var(--accent);
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(236,72,153,0.2);
+    }
+    
+    .invitation-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .invitation-input {
+      width: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      border: 2px solid var(--muted);
+      border-radius: 999px;
+      padding: 16px 24px;
+      font-size: 16px;
+      margin: 20px 0;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .invitation-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(236,72,153,0.1);
+    }
+    
+    .invitation-btn {
+      background: var(--gradient);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      width: 100%;
+    }
+    
+    .invitation-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .invitation-error {
+      color: var(--bad);
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    
+    /* Admin Login Gate (for /admin route) */
+    .admin-login-gate {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(14,17,22,0.98) 0%, rgba(23,27,34,0.98) 100%);
+      backdrop-filter: blur(10px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Admin Studio Styles */
+    .admin-studio {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      z-index: 1500;
+      display: none;
+      overflow: hidden;
+    }
+
+    .studio-sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 380px;
+      height: 100%;
+      background: var(--card);
+      border-right: 1px solid #2a3240;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .studio-preview {
+      margin-left: 380px;
+      height: 100%;
+      overflow-y: auto;
+      background: #0a0d12;
+    }
+
+    .studio-header {
+      padding: 20px;
+      border-bottom: 1px solid #2a3240;
+      background: var(--card);
+    }
+
+    .section-builder {
+      padding: 20px;
+    }
+
+    .section-type {
+      background: var(--bg);
+      border: 1px solid #2a3240;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-type:hover {
+      border-color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--gradient);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .section-list {
+      padding: 20px;
+      border-top: 1px solid #2a3240;
+    }
+
+    .section-item {
+      background: var(--bg);
+      border: 1px solid #2a3240;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .section-controls {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      gap: 4px;
+    }
+
+    .control-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--card);
+      border: 1px solid #2a3240;
+      color: var(--fg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .control-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .field-group {
+      margin-bottom: 12px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .field-input {
+      width: 100%;
+      background: var(--card);
+      color: var(--fg);
+      border: 1px solid #2a3240;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .field-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .field-textarea {
+      min-height: 80px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    /* Device Preview Buttons */
+    .device-controls {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 90;
+      background: var(--card);
+      border-radius: 999px;
+      padding: 4px;
+      display: flex;
+      gap: 4px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .device-btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .device-btn.active {
+      background: var(--gradient);
+      color: white;
+    }
+
+    /* Admin Panel (Code Management) */
+    .admin-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--card);
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      padding: 20px;
+      max-width: 350px;
+      z-index: 999;
+      font-size: 14px;
+    }
+    
+    .admin-panel h3 {
+      margin: 0 0 12px 0;
+      color: var(--accent);
+    }
+    
+    .admin-input {
+      width: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      border: 1px solid var(--muted);
+      border-radius: 999px;
+      padding: 8px 12px;
+      margin: 4px 0;
+      font-size: 12px;
+    }
+    
+    .admin-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+      margin: 2px;
+    }
+    
+    /* Main Site Styles */
+    header, footer {
+      padding: 16px 20px;
+      background: #0a0d12;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid #232a34;
+    }
+    
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 28px;
+      align-items: center;
+      padding: 24px 0 8px;
+    }
+    
+    .card {
+      background: var(--card);
+      border: 1px solid #232a34;
+      border-radius: 20px;
+      padding: 18px;
+    }
+    
+    .pill {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #2a3240;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    
+    .h1 {
+      font-size: 34px;
+      line-height: 1.2;
+      margin: 12px 0 10px;
+    }
+    
+    .muted {
+      color: var(--muted);
+    }
+    
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+    
+    .grid-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .grid-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    
+    .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    input, select {
+      width: 100%;
+      background: #0f1319;
+      color: var(--fg);
+      border: 1px solid #2a3240;
+      border-radius: 999px;
+      padding: 12px 16px;
+      transition: all 0.3s ease;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(236,72,153,0.1);
+    }
+    
+    button {
+      background: var(--gradient);
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(236,72,153,0.3);
+    }
+    
+    button.ghost {
+      background: transparent;
+      border: 1px solid #2a3240;
+      color: var(--fg);
+    }
+    
+    button.ghost:hover {
+      background: var(--card);
+      border-color: var(--accent);
+    }
+    
+    .price {
+      font-weight: 800;
+    }
+    
+    .chip {
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #2a3240;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    
+    .result {
+      font-size: 22px;
+      font-weight: 800;
+    }
+    
+    .good { color: var(--good); }
+    .bad { color: var(--bad); }
+    .warn { color: var(--warn); }
+    
+    .small {
+      font-size: 12px;
+    }
+    
+    .section-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    
+    .table th, .table td {
+      border-bottom: 1px solid #222933;
+      padding: 10px 6px;
+      font-size: 14px;
+      text-align: left;
+    }
+    
+    .table th {
+      font-weight: 600;
+      color: var(--accent);
+    }
+    
+    .badge {
+      background: #1d2430;
+      border: 1px solid #2a3240;
+      color: #b8c6d9;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+    
+    .badge:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Responsive */
+    @media (max-width: 940px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+      
+      .row {
+        flex-wrap: wrap;
+      }
+      
+      .admin-panel {
+        position: relative;
+        top: 0;
+        right: 0;
+        margin: 20px 0;
+      }
+
+      .studio-sidebar {
+        width: 100%;
+        height: 50%;
+        position: relative;
+      }
+
+      .studio-preview {
+        margin-left: 0;
+        height: 50%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- VN Logo SVG Definition -->
+  <svg style="display:none">
+    <symbol id="vn-logo-svg" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <!-- Isometric VN blocks -->
+      <g transform="translate(50,50) scale(1.2)">
+        <!-- Top bar -->
+        <rect x="-30" y="-35" width="25" height="8" fill="url(#grad1)"/>
+        <rect x="-30" y="-35" width="8" height="25" fill="#d946ef"/>
+        <!-- Middle bar -->
+        <rect x="5" y="-20" width="25" height="8" fill="url(#grad1)"/>
+        <rect x="5" y="-20" width="8" height="25" fill="#d946ef"/>
+        <!-- Bottom V -->
+        <rect x="-15" y="0" width="30" height="8" fill="url(#grad1)"/>
+        <rect x="-15" y="0" width="8" height="35" fill="#d946ef"/>
+      </g>
+    </symbol>
+  </svg>
+
+  <!-- INVITATION GATE -->
+  <div id="invitationGate" class="invitation-gate">
+    <div class="invitation-card">
+      <div class="vn-logo" style="justify-content: center; margin-bottom: 20px;">
+        <div class="vn-logo-iso">
+          <svg><use xlink:href="#vn-logo-svg"></use></svg>
+        </div>
+        Value Number™
+      </div>
+      <h2 class="invitation-title">Invitation Only</h2>
+      <p class="muted">Value Number™ is currently in private beta. Enter your invitation code to access the revolutionary decision-making framework.</p>
+      <input 
+        type="text" 
+        id="invitationCode" 
+        class="invitation-input" 
+        placeholder="Enter invitation code"
+        autocomplete="off"
+      />
+      <button id="invitationSubmit" class="invitation-btn">Access Value Number™</button>
+      <div id="invitationError" class="invitation-error hidden"></div>
+      <p class="small muted" style="margin-top: 24px;">
+        Need an invitation? Contact <a href="mailto:713consulting@gmail.com">Keith Bolden</a><br/>
+        713 Consulting and Development • Houston, TX
+      </p>
+    </div>
+  </div>
+
+  <!-- ADMIN LOGIN GATE (for /admin route) -->
+  <div id="adminLoginGate" class="admin-login-gate hidden">
+    <div class="invitation-card">
+      <div class="vn-logo" style="justify-content: center; margin-bottom: 20px;">
+        <div class="vn-logo-iso">
+          <svg><use xlink:href="#vn-logo-svg"></use></svg>
+        </div>
+        Admin Access
+      </div>
+      <h2 class="invitation-title">ValueNumber™ Studio</h2>
+      <p class="muted">Enter admin credentials to access the website builder.</p>
+      <input 
+        type="password" 
+        id="adminPassword" 
+        class="invitation-input" 
+        placeholder="Admin password"
+        autocomplete="off"
+      />
+      <button id="adminLoginSubmit" class="invitation-btn">Access Studio</button>
+      <div id="adminLoginError" class="invitation-error hidden"></div>
+      <button id="backToSite" class="ghost" style="margin-top: 12px; width: 100%;">Back to Site</button>
+    </div>
+  </div>
+
+  <!-- ADMIN STUDIO (Website Builder) -->
+  <div id="adminStudio" class="admin-studio">
+    <div class="studio-sidebar">
+      <div class="studio-header">
+        <div class="vn-logo" style="margin-bottom: 12px;">
+          <div class="vn-logo-iso">
+            <svg><use xlink:href="#vn-logo-svg"></use></svg>
+          </div>
+          <span style="font-size: 18px;">ValueNumber™ Studio</span>
+        </div>
+        <div class="row" style="gap: 8px; margin-top: 12px;">
+          <button id="saveStudio" class="small" style="padding: 8px 12px;">💾 Save</button>
+          <button id="exportStudio" class="small ghost" style="padding: 8px 12px;">📥 Export</button>
+          <button id="exitStudio" class="small ghost" style="padding: 8px 12px;">✕ Exit</button>
+        </div>
+      </div>
+
+      <div class="section-builder">
+        <div class="field-label">Add Section</div>
+        <div class="section-type" data-type="hero">
+          <div class="section-icon">🚀</div>
+          <div>
+            <div style="font-weight: 600;">Hero Section</div>
+            <div style="font-size: 12px; color: var(--muted);">Eye-catching header</div>
+          </div>
+        </div>
+        <div class="section-type" data-type="text">
+          <div class="section-icon">📝</div>
+          <div>
+            <div style="font-weight: 600;">Text Block</div>
+            <div style="font-size: 12px; color: var(--muted);">Content section</div>
+          </div>
+        </div>
+        <div class="section-type" data-type="features">
+          <div class="section-icon">⚡</div>
+          <div>
+            <div style="font-weight: 600;">Features</div>
+            <div style="font-size: 12px; color: var(--muted);">Feature grid</div>
+          </div>
+        </div>
+        <div class="section-type" data-type="faq">
+          <div class="section-icon">❓</div>
+          <div>
+            <div style="font-weight: 600;">FAQ</div>
+            <div style="font-size: 12px; color: var(--muted);">Q&A section</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-list">
+        <div class="field-label">Page Sections</div>
+        <div id="sectionsList"></div>
+      </div>
+    </div>
+
+    <div class="studio-preview">
+      <div class="device-controls">
+        <button class="device-btn active" data-device="desktop">💻 Desktop</button>
+        <button class="device-btn" data-device="tablet">📱 Tablet</button>
+        <button class="device-btn" data-device="mobile">📱 Mobile</button>
+      </div>
+      <div id="studioPreview" style="padding: 60px 20px;">
+        <!-- Preview content will be rendered here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL (Hidden by default) -->
+  <div id="adminPanel" class="admin-panel hidden">
+    <h3>Admin Panel</h3>
+    <div>
+      <input id="newCode" class="admin-input" placeholder="New invitation code" />
+      <input id="newExpiry" class="admin-input" type="date" />
+      <label style="font-size: 10px; color: var(--muted);">
+        <input type="checkbox" id="oneTimeCode" /> One-time use
+      </label>
+      <button id="addCode" class="admin-btn">Add Code</button>
+    </div>
+    <div id="codesList" style="margin-top: 12px; max-height: 200px; overflow-y: auto;"></div>
+    <button id="closeAdmin" class="admin-btn" style="background: var(--bad); margin-top: 8px;">Close</button>
+  </div>
+
+  <!-- MAIN WEBSITE -->
+  <div id="mainSite" class="hidden">
+    <header>
+      <div class="container row" style="justify-content: space-between;">
+        <div class="vn-logo">
+          <div class="vn-logo-iso">
+            <svg><use xlink:href="#vn-logo-svg"></use></svg>
+          </div>
+          Value Number™
+        </div>
+        <div class="row" style="gap: 8px; flex-wrap: wrap;">
+          <a class="badge" href="https://713consulting.net/terms">Terms</a>
+          <a class="badge" href="https://713consulting.net/privacy">Privacy</a>
+          <a class="badge" href="mailto:713consulting@gmail.com">Support</a>
+          <button id="btnStartTrial" class="ghost">Start Free Trial</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <div>
+          <span class="pill">Proprietary framework by Keith Bolden</span>
+          <h1 class="h1">Calculate the Value Number™ to decide whether to adopt a new method or make a new purchase.</h1>
+          <p class="muted">VN compares time, effort, and cost between your current method and a new one, or between your current setup and a potential purchase. Get S (without cost) and W (with cost). If the number is greater than 1, the new way likely wins.</p>
+          <div class="row" style="gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+            <button id="ctaCalculate">Try the Calculator</button>
+            <button class="ghost" id="ctaLearn">How it works</button>
+          </div>
+          <div class="row" style="gap: 8px; margin-top: 10px;">
+            <span class="chip">Use it for: adopting a new workflow OR deciding on a new purchase</span>
+          </div>
+          <div class="row" style="gap: 14px; margin-top: 16px; flex-wrap: wrap;">
+            <span class="chip">3-day free trial</span>
+            <span class="chip">$<span class="price">2.73</span>/mo Personal</span>
+            <span class="chip">$<span class="price">48.73</span>/mo Pro</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">Quick Calculator</div>
+          <div class="grid grid-2">
+            <div>
+              <div class="label">Task (X)</div>
+              <input id="inputX" placeholder="e.g., Harvest apples" />
+            </div>
+            <div>
+              <div class="label">Mode</div>
+              <select id="mode">
+                <option value="without_cost">Without Cost (S)</option>
+                <option value="with_cost">With Cost (W)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-3" style="margin-top: 12px;">
+            <div>
+              <div class="label">Z: Old Time (HH:MM)</div>
+              <input id="inputZ" type="text" placeholder="100:00" pattern="\d+:\d{2}" title="Format: HH:MM" />
+            </div>
+            <div>
+              <div class="label">Q: Old Effort (1–10)</div>
+              <input id="inputQ" type="number" min="1" max="10" step="1" placeholder="6" />
+            </div>
+            <div>
+              <div class="label">Y: Train Time (HH:MM)</div>
+              <input id="inputY" type="text" placeholder="20:00" pattern="\d+:\d{2}" title="Format: HH:MM" />
+            </div>
+          </div>
+
+          <div class="grid grid-3" style="margin-top: 12px;">
+            <div>
+              <div class="label">V: New Effort (1–10)</div>
+              <input id="inputV" type="number" min="1" max="10" step="1" placeholder="4" />
+            </div>
+            <div class="withCost">
+              <div class="label">M: Old Cost ($/period)</div>
+              <input id="inputM" type="number" min="0" step="0.01" placeholder="200" />
+            </div>
+            <div class="withCost">
+              <div class="label">T: Train/Purchase Cost ($)</div>
+              <input id="inputT" type="number" min="0" step="0.01" placeholder="500" />
+            </div>
+          </div>
+
+          <div class="row" style="gap: 10px; margin-top: 16px; flex-wrap: wrap;">
+            <button id="btnCalculate">Calculate VN</button>
+            <button class="ghost" id="btnAddScenario">Add to Comparison</button>
+          </div>
+          <div id="result" style="margin-top: 14px;"></div>
+        </div>
+      </section>
+
+      <section id="how" class="grid" style="margin-top: 20px;">
+        <div class="card">
+          <div class="section-title">How VN Works</div>
+          <p class="muted">Without cost, VN computes S. With cost, VN computes W. Results greater than 1 suggest the new method is favorable.</p>
+          <div class="grid grid-2" style="margin-top: 12px;">
+            <div class="card">
+              <div class="section-title">Without Cost (S)</div>
+              <p class="small muted">Inputs: Z (old time), Q (old effort), Y (train time for new), V (new effort).</p>
+              <p class="small">Formula: <strong>S = Z / (Y + V)</strong></p>
+              <p class="small muted">Interpretation: S > 1 favors adopting the new method.</p>
+            </div>
+            <div class="card">
+              <div class="section-title">With Cost (W)</div>
+              <p class="small muted">Inputs: Z, Q, Y, V, plus M (old cost of current method), T (one-time training or purchase cost for the new option).</p>
+              <p class="small">Formula: <strong>W = (Z×M) / (Y×T + V)</strong></p>
+              <p class="small muted">Interpretation: W > 1 favors adopting the new method.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="comparisonCard">
+          <div class="section-title">Scenario Comparison</div>
+          <div class="small muted">Add multiple scenarios and compare S/W side-by-side.</div>
+          <table class="table" id="comparisonTable">
+            <thead>
+              <tr>
+                <th>#</th><th>Task</th><th>Mode</th><th>Result</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonBody"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="section-title">Plans</div>
+          <div class="grid grid-2">
+            <div class="card">
+              <div class="section-title">Personal</div>
+              <p><span class="price">$2.73</span> / month</p>
+              <p class="small muted">3-day free trial. For individuals optimizing everyday and professional decisions.</p>
+              <button class="startPlan" data-plan="personal">Start Trial</button>
+            </div>
+            <div class="card">
+              <div class="section-title">Pro</div>
+              <p><span class="price">$48.73</span> / month</p>
+              <p class="small muted">3-day free trial. Advanced comparisons, CSV export, scenario templates, and collaboration.</p>
+              <button class="startPlan" data-plan="pro">Start Trial</button>
+            </div>
+          </div>
+          <p class="small muted" style="margin-top: 12px;">Contact <a href="mailto:713consulting@gmail.com">713consulting@gmail.com</a> for enterprise plans.</p>
+        </div>
+
+        <div class="card">
+          <div class="section-title">About the Creator</div>
+          <p class="muted">Value Number™ was created by <strong>Keith Bolden</strong>, Principal at 713 Consulting and Development. Keith is a visionary innovator focused on technology that uplifts human dignity and empowers better decision-making.</p>
+          <div class="grid grid-2" style="margin-top: 12px;">
+            <div>
+              <div class="small muted">Contact</div>
+              <p class="small">Keith Bolden<br/>713 Consulting and Development<br/>1942 W. Gray St., Box #1259<br/>Houston, TX 77019</p>
+              <p class="small">Phone: <a href="tel:7134436691">(713) 443-6691</a><br/>Email: <a href="mailto:713consulting@gmail.com">713consulting@gmail.com</a><br/>Web: <a href="https://713consulting.net">713consulting.net</a></p>
+            </div>
+            <div>
+              <div class="small muted">Support the Vision</div>
+              <p class="small">Zelle: 713consulting@gmail.com<br/>CashApp: $OriginalPower<br/>Venmo: @KeithBolden</p>
+              <p class="small muted">Thank you for your encouragement and support!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container row" style="justify-content: space-between; flex-wrap: wrap;">
+        <div class="small muted">© 2025 713 Consulting and Development. All rights reserved.</div>
+        <div class="small muted">Houston, TX • <a href="tel:7134436691">(713) 443-6691</a></div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // ==============================================
+    // ROUTING AND INITIALIZATION
+    // ==============================================
+    
+    class AppRouter {
+      constructor() {
+        this.checkRoute();
+        window.addEventListener('popstate', () => this.checkRoute());
+        window.addEventListener('hashchange', () => this.checkRoute());
+      }
+
+      checkRoute() {
+        const path = window.location.pathname.toLowerCase();
+        const hash = window.location.hash.toLowerCase();
+        
+        // Check both path and hash for admin route
+        if (path === '/admin' || path.includes('/admin') || hash === '#admin') {
+          this.showAdminLogin();
+        } else {
+          // Normal site flow
+          if (!window.invitationManager) {
+            window.invitationManager = new InvitationManager();
+          }
+        }
+      }
+
+      showAdminLogin() {
+        // Hide invitation gate, show admin login
+        document.getElementById('invitationGate').classList.add('hidden');
+        document.getElementById('mainSite').classList.add('hidden');
+        document.getElementById('adminLoginGate').classList.remove('hidden');
+        
+        if (!window.adminStudioManager) {
+          window.adminStudioManager = new AdminStudioManager();
+        }
+      }
+    }
+
+    // ==============================================
+    // ADMIN STUDIO MANAGER (Website Builder)
+    // ==============================================
+    
+    class AdminStudioManager {
+      constructor() {
+        this.adminPassword = 'admin@VN2025'; // Default admin password
+        this.sections = this.loadSections();
+        this.currentDevice = 'desktop';
+        this.initEventListeners();
+      }
+
+      initEventListeners() {
+        // Admin login
+        document.getElementById('adminLoginSubmit').addEventListener('click', () => this.validateAdminLogin());
+        document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.validateAdminLogin();
+        });
+        document.getElementById('backToSite').addEventListener('click', () => {
+          window.location.href = '/';
+          window.location.hash = '';
+        });
+
+        // Studio controls
+        document.getElementById('exitStudio').addEventListener('click', () => this.exitStudio());
+        document.getElementById('saveStudio').addEventListener('click', () => this.saveSections());
+        document.getElementById('exportStudio').addEventListener('click', () => this.exportSite());
+
+        // Section types
+        document.querySelectorAll('.section-type').forEach(el => {
+          el.addEventListener('click', () => this.addSection(el.dataset.type));
+        });
+
+        // Device preview
+        document.querySelectorAll('.device-btn').forEach(btn => {
+          btn.addEventListener('click', () => this.setDevice(btn.dataset.device));
+        });
+      }
+
+      validateAdminLogin() {
+        const password = document.getElementById('adminPassword').value;
+        
+        if (password === this.adminPassword) {
+          localStorage.setItem('vn_admin_authed', 'true');
+          this.showStudio();
+        } else {
+          const error = document.getElementById('adminLoginError');
+          error.textContent = 'Invalid admin password';
+          error.classList.remove('hidden');
+          setTimeout(() => error.classList.add('hidden'), 3000);
+        }
+      }
+
+      showStudio() {
+        document.getElementById('adminLoginGate').classList.add('hidden');
+        document.getElementById('adminStudio').style.display = 'flex';
+        this.renderSections();
+        this.renderPreview();
+      }
+
+      exitStudio() {
+        document.getElementById('adminStudio').style.display = 'none';
+        window.location.href = '/';
+        window.location.hash = '';
+      }
+
+      loadSections() {
+        const saved = localStorage.getItem('vn_studio_sections');
+        return saved ? JSON.parse(saved) : [];
+      }
+
+      saveSections() {
+        localStorage.setItem('vn_studio_sections', JSON.stringify(this.sections));
+        this.showNotification('Site saved successfully!');
+      }
+
+      addSection(type) {
+        const templates = {
+          hero: {
+            type: 'hero',
+            title: 'Welcome to ValueNumber',
+            subtitle: 'Make better decisions with data',
+            cta: 'Get Started'
+          },
+          text: {
+            type: 'text',
+            title: 'About',
+            content: 'Your content here...'
+          },
+          features: {
+            type: 'features',
+            title: 'Features',
+            items: ['Feature 1', 'Feature 2', 'Feature 3']
+          },
+          faq: {
+            type: 'faq',
+            title: 'FAQ',
+            items: [
+              { q: 'Question 1?', a: 'Answer 1' },
+              { q: 'Question 2?', a: 'Answer 2' }
+            ]
+          }
+        };
+
+        const section = {
+          id: Date.now(),
+          ...templates[type]
+        };
+
+        this.sections.push(section);
+        this.renderSections();
+        this.renderPreview();
+      }
+
+      removeSection(id) {
+        this.sections = this.sections.filter(s => s.id !== id);
+        this.renderSections();
+        this.renderPreview();
+      }
+
+      moveSection(id, direction) {
+        const index = this.sections.findIndex(s => s.id === id);
+        if (index === -1) return;
+
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= this.sections.length) return;
+
+        [this.sections[index], this.sections[newIndex]] = [this.sections[newIndex], this.sections[index]];
+        this.renderSections();
+        this.renderPreview();
+      }
+
+      updateSection(id, field, value) {
+        const section = this.sections.find(s => s.id === id);
+        if (section) {
+          section[field] = value;
+          this.renderPreview();
+        }
+      }
+
+      renderSections() {
+        const container = document.getElementById('sectionsList');
+        container.innerHTML = this.sections.map((section, index) => `
+          <div class="section-item">
+            <div class="section-controls">
+              <button class="control-btn" onclick="adminStudioManager.moveSection(${section.id}, 'up')">↑</button>
+              <button class="control-btn" onclick="adminStudioManager.moveSection(${section.id}, 'down')">↓</button>
+              <button class="control-btn" onclick="adminStudioManager.removeSection(${section.id})">✕</button>
+            </div>
+            <div class="field-group">
+              <div class="field-label">${section.type.toUpperCase()}</div>
+              ${this.renderSectionFields(section)}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      renderSectionFields(section) {
+        switch(section.type) {
+          case 'hero':
+            return `
+              <input class="field-input" value="${section.title}" onchange="adminStudioManager.updateSection(${section.id}, 'title', this.value)" placeholder="Title" />
+              <input class="field-input" value="${section.subtitle}" onchange="adminStudioManager.updateSection(${section.id}, 'subtitle', this.value)" placeholder="Subtitle" />
+              <input class="field-input" value="${section.cta}" onchange="adminStudioManager.updateSection(${section.id}, 'cta', this.value)" placeholder="CTA Text" />
+            `;
+          case 'text':
+            return `
+              <input class="field-input" value="${section.title}" onchange="adminStudioManager.updateSection(${section.id}, 'title', this.value)" placeholder="Title" />
+              <textarea class="field-input field-textarea" onchange="adminStudioManager.updateSection(${section.id}, 'content', this.value)" placeholder="Content">${section.content}</textarea>
+            `;
+          case 'features':
+            return `
+              <input class="field-input" value="${section.title}" onchange="adminStudioManager.updateSection(${section.id}, 'title', this.value)" placeholder="Title" />
+              <div class="small muted">Edit features in preview</div>
+            `;
+          case 'faq':
+            return `
+              <input class="field-input" value="${section.title}" onchange="adminStudioManager.updateSection(${section.id}, 'title', this.value)" placeholder="Title" />
+              <div class="small muted">Edit Q&A in preview</div>
+            `;
+          default:
+            return '';
+        }
+      }
+
+      renderPreview() {
+        const preview = document.getElementById('studioPreview');
+        const deviceClass = this.currentDevice === 'mobile' ? 'max-width: 375px; margin: 0 auto;' : 
+                           this.currentDevice === 'tablet' ? 'max-width: 768px; margin: 0 auto;' : '';
+        
+        preview.innerHTML = `
+          <div style="${deviceClass}">
+            ${this.sections.map(section => this.renderPreviewSection(section)).join('')}
+            ${this.sections.length === 0 ? '<div class="card" style="text-align: center; padding: 60px;"><h2>Start Building Your Site</h2><p class="muted">Add sections from the left panel</p></div>' : ''}
+          </div>
+        `;
+      }
+
+      renderPreviewSection(section) {
+        switch(section.type) {
+          case 'hero':
+            return `
+              <div class="card" style="text-align: center; padding: 60px 40px; margin-bottom: 20px; background: var(--gradient);">
+                <h1 style="color: white; font-size: 36px; margin-bottom: 16px;">${section.title}</h1>
+                <p style="color: rgba(255,255,255,0.9); font-size: 18px; margin-bottom: 24px;">${section.subtitle}</p>
+                <button style="background: white; color: var(--secondary);">${section.cta}</button>
+              </div>
+            `;
+          case 'text':
+            return `
+              <div class="card" style="margin-bottom: 20px;">
+                <h2 class="section-title">${section.title}</h2>
+                <p class="muted">${section.content}</p>
+              </div>
+            `;
+          case 'features':
+            return `
+              <div class="card" style="margin-bottom: 20px;">
+                <h2 class="section-title">${section.title}</h2>
+                <div class="grid grid-3" style="margin-top: 16px;">
+                  ${section.items.map(item => `
+                    <div class="card">
+                      <div style="font-weight: 600; color: var(--accent);">✨ ${item}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          case 'faq':
+            return `
+              <div class="card" style="margin-bottom: 20px;">
+                <h2 class="section-title">${section.title}</h2>
+                ${section.items.map(item => `
+                  <details style="margin: 12px 0; padding: 12px; border: 1px solid #2a3240; border-radius: 12px;">
+                    <summary style="cursor: pointer; font-weight: 600;">${item.q}</summary>
+                    <p style="margin-top: 8px; color: var(--muted);">${item.a}</p>
+                  </details>
+                `).join('')}
+              </div>
+            `;
+          default:
+            return '';
+        }
+      }
+
+      setDevice(device) {
+        this.currentDevice = device;
+        document.querySelectorAll('.device-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.device === device);
+        });
+        this.renderPreview();
+      }
+
+      exportSite() {
+        const siteData = {
+          sections: this.sections,
+          exportDate: new Date().toISOString()
+        };
+        
+        const blob = new Blob([JSON.stringify(siteData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'valuenumber-site.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      showNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          background: var(--gradient);
+          color: white;
+          padding: 16px 24px;
+          border-radius: 12px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          z-index: 9999;
+          animation: slideIn 0.3s ease;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          notification.style.animation = 'slideOut 0.3s ease';
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      }
+    }
+
+    // ==============================================
+    // INVITATION SYSTEM
+    // ==============================================
+    
+    class InvitationManager {
+      constructor() {
+        this.defaultCodes = [
+          { code: 'VN2025BETA', expiry: null, oneTime: false, used: false },
+          { code: 'KEITH713', expiry: null, oneTime: false, used: false },
+          { code: 'VALUENUMBER', expiry: null, oneTime: false, used: false },
+          { code: 'BOLDEN2025', expiry: new Date('2025-12-31').getTime(), oneTime: false, used: false },
+          { code: 'HOUSTON713', expiry: null, oneTime: false, used: false }
+        ];
+        this.loadCodes();
+        this.initEventListeners();
+        this.checkExistingAccess();
+        this.checkAdminAccess();
+      }
+
+      loadCodes() {
+        const stored = localStorage.getItem('vn_invitation_codes');
+        this.codes = stored ? JSON.parse(stored) : [...this.defaultCodes];
+      }
+
+      saveCodes() {
+        localStorage.setItem('vn_invitation_codes', JSON.stringify(this.codes));
+      }
+
+      initEventListeners() {
+        document.getElementById('invitationSubmit').addEventListener('click', () => this.validateInvitation());
+        document.getElementById('invitationCode').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.validateInvitation();
+        });
+      }
+
+      checkAdminAccess() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('admin') === '1') {
+          this.showAdminPanel();
+        }
+      }
+
+      showAdminPanel() {
+        const panel = document.getElementById('adminPanel');
+        panel.classList.remove('hidden');
+        this.initAdminEvents();
+        this.refreshCodesList();
+      }
+
+      initAdminEvents() {
+        document.getElementById('addCode').addEventListener('click', () => this.addCode());
+        document.getElementById('closeAdmin').addEventListener('click', () => {
+          document.getElementById('adminPanel').classList.add('hidden');
+        });
+      }
+
+      addCode() {
+        const codeInput = document.getElementById('newCode');
+        const expiryInput = document.getElementById('newExpiry');
+        const oneTimeCheck = document.getElementById('oneTimeCode');
+        
+        const code = codeInput.value.trim().toUpperCase();
+        if (!code) return;
+
+        const expiry = expiryInput.value ? new Date(expiryInput.value).getTime() : null;
+        
+        this.codes.push({
+          code,
+          expiry,
+          oneTime: oneTimeCheck.checked,
+          used: false
+        });
+        
+        this.saveCodes();
+        this.refreshCodesList();
+        
+        codeInput.value = '';
+        expiryInput.value = '';
+        oneTimeCheck.checked = false;
+      }
+
+      refreshCodesList() {
+        const list = document.getElementById('codesList');
+        list.innerHTML = this.codes.map((c, i) => `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin: 4px 0; padding: 4px; background: var(--bg); border-radius: 8px; font-size: 11px;">
+            <span>${c.code}</span>
+            <span style="color: var(--muted);">
+              ${c.oneTime ? (c.used ? '🔒 Used' : '⚡ One-time') : '♻️ Reusable'}
+              ${c.expiry ? ` | Expires: ${new Date(c.expiry).toLocaleDateString()}` : ''}
+            </span>
+            <button onclick="invitationManager.removeCode(${i})" style="background: var(--bad); border: none; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; cursor: pointer;">✕</button>
+          </div>
+        `).join('');
+      }
+
+      removeCode(index) {
+        this.codes.splice(index, 1);
+        this.saveCodes();
+        this.refreshCodesList();
+      }
+
+      checkExistingAccess() {
+        const hasAccess = localStorage.getItem('vn_invitation_valid');
+        const storedCode = localStorage.getItem('vn_invitation_code');
+        
+        if (hasAccess === 'true' && storedCode) {
+          const code = this.codes.find(c => c.code === storedCode);
+          if (code && this.isCodeValid(code)) {
+            this.showMainSite();
+            return;
+          }
+        }
+        
+        localStorage.removeItem('vn_invitation_valid');
+        localStorage.removeItem('vn_invitation_code');
+      }
+
+      isCodeValid(codeObj) {
+        if (codeObj.oneTime && codeObj.used) return false;
+        if (codeObj.expiry && Date.now() > codeObj.expiry) return false;
+        return true;
+      }
+
+      validateInvitation() {
+        const input = document.getElementById('invitationCode');
+        const code = input.value.trim().toUpperCase();
+        
+        if (!code) {
+          this.showError('Please enter an invitation code');
+          return;
+        }
+
+        const codeObj = this.codes.find(c => c.code === code);
+        
+        if (!codeObj) {
+          this.showError('Invalid invitation code. Contact Keith Bolden for access.');
+          input.value = '';
+          return;
+        }
+
+        if (!this.isCodeValid(codeObj)) {
+          this.showError('This invitation code has expired or been used.');
+          input.value = '';
+          return;
+        }
+
+        if (codeObj.oneTime) {
+          codeObj.used = true;
+          this.saveCodes();
+        }
+
+        localStorage.setItem('vn_invitation_valid', 'true');
+        localStorage.setItem('vn_invitation_code', code);
+        this.showMainSite();
+      }
+
+      showError(message) {
+        const error = document.getElementById('invitationError');
+        error.textContent = message;
+        error.classList.remove('hidden');
+        setTimeout(() => error.classList.add('hidden'), 5000);
+      }
+
+      showMainSite() {
+        const gate = document.getElementById('invitationGate');
+        const site = document.getElementById('mainSite');
+        
+        gate.style.opacity = '0';
+        setTimeout(() => {
+          gate.classList.add('hidden');
+          site.classList.remove('hidden');
+          if (window.vnCalculator) window.vnCalculator.init();
+        }, 300);
+      }
+    }
+
+    // ==============================================
+    // VALUE NUMBER CALCULATOR
+    // ==============================================
+    
+    class VNCalculator {
+      constructor() {
+        this.scenarios = [];
+      }
+
+      init() {
+        this.initEventListeners();
+        this.refreshCostVisibility();
+      }
+
+      initEventListeners() {
+        const mode = document.getElementById('mode');
+        mode.addEventListener('change', () => this.refreshCostVisibility());
+        
+        document.getElementById('btnCalculate').addEventListener('click', () => this.calculate());
+        document.getElementById('btnAddScenario').addEventListener('click', () => this.addScenario());
+        document.getElementById('ctaCalculate').addEventListener('click', () => this.scrollToCalculator());
+        document.getElementById('ctaLearn').addEventListener('click', () => this.scrollToHow());
+
+        document.querySelectorAll('.startPlan').forEach(btn => {
+          btn.addEventListener('click', () => {
+            alert('Trial system will be activated at public launch. Contact Keith Bolden for early access.');
+          });
+        });
+
+        document.getElementById('btnStartTrial').addEventListener('click', () => {
+          alert('Trial system will be activated at public launch. Contact Keith Bolden for early access.');
+        });
+      }
+
+      refreshCostVisibility() {
+        const mode = document.getElementById('mode').value;
+        const withCost = mode === 'with_cost';
+        document.querySelectorAll('.withCost').forEach(el => {
+          el.style.display = withCost ? 'block' : 'none';
+        });
+      }
+
+      readInputs() {
+        const get = id => document.getElementById(id).value.trim();
+        
+        // Convert time format HH:MM to decimal hours
+        const timeToHours = (timeStr) => {
+          if (!timeStr) return 0;
+          if (timeStr.includes(':')) {
+            const [hours, minutes] = timeStr.split(':').map(n => parseInt(n) || 0);
+            return hours + (minutes / 60);
+          }
+          return parseFloat(timeStr) || 0;
+        };
+        
+        return {
+          X: get('inputX') || 'Unnamed Task',
+          mode: document.getElementById('mode').value,
+          Z: timeToHours(get('inputZ')),
+          Q: Math.max(1, Math.min(10, parseInt(get('inputQ')) || 1)),
+          Y: timeToHours(get('inputY')),
+          V: Math.max(1, Math.min(10, parseInt(get('inputV')) || 1)),
+          M: parseFloat(get('inputM')) || 0,
+          T: parseFloat(get('inputT')) || 0
+        };
+      }
+
+      computeS({ Z, Q, Y, V }) {
+        const denom = (Y + V);
+        return denom > 0 ? Z / denom : NaN;
+      }
+
+      computeW({ Z, Q, Y, V, M, T }) {
+        const denom = (Y * T + V);
+        return denom > 0 ? (Z * M) / denom : NaN;
+      }
+
+      decorateScore(score) {
+        if (!isFinite(score)) return { txt: 'Invalid inputs', cls: 'warn' };
+        if (score > 1.2) return { txt: `${score.toFixed(3)} • Strongly favors NEW`, cls: 'good' };
+        if (score > 1.0) return { txt: `${score.toFixed(3)} • Favors NEW`, cls: 'good' };
+        if (Math.abs(score - 1.0) <= 0.05) return { txt: `${score.toFixed(3)} • Neutral`, cls: 'warn' };
+        return { txt: `${score.toFixed(3)} • Favors OLD`, cls: 'bad' };
+      }
+
+      calculate() {
+        const inp = this.readInputs();
+        const score = inp.mode === 'with_cost' ? this.computeW(inp) : this.computeS(inp);
+        const label = inp.mode === 'with_cost' ? 'W' : 'S';
+        const d = this.decorateScore(score);
+        
+        document.getElementById('result').innerHTML = `
+          <div class="card">
+            <div class="row" style="justify-content: space-between;">
+              <div class="section-title">Result</div>
+              <span class="chip">Greater than 1 favors the new method</span>
+            </div>
+            <div class="result ${d.cls}">${label} = ${d.txt}</div>
+            <div class="small muted">Task: ${inp.X}</div>
+          </div>
+        `;
+      }
+
+      addScenario() {
+        const inp = this.readInputs();
+        this.scenarios.push(inp);
+        this.refreshComparison();
+      }
+
+      refreshComparison() {
+        const body = document.getElementById('comparisonBody');
+        body.innerHTML = this.scenarios.map((s, idx) => {
+          const score = s.mode === 'with_cost' ? this.computeW(s) : this.computeS(s);
+          const d = this.decorateScore(score);
+          const label = s.mode === 'with_cost' ? 'W' : 'S';
+          
+          return `
+            <tr>
+              <td>${idx + 1}</td>
+              <td>${s.X}</td>
+              <td>${s.mode === 'with_cost' ? 'With Cost' : 'Without Cost'}</td>
+              <td class="${d.cls}">${label} = ${d.txt}</td>
+              <td><button class="ghost" onclick="vnCalculator.removeScenario(${idx})" style="padding: 4px 8px; font-size: 12px;">Remove</button></td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      removeScenario(index) {
+        this.scenarios.splice(index, 1);
+        this.refreshComparison();
+      }
+
+      scrollToCalculator() {
+        document.querySelector('.hero').scrollIntoView({ behavior: 'smooth' });
+      }
+
+      scrollToHow() {
+        document.getElementById('how').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // ==============================================
+    // CSS ANIMATIONS
+    // ==============================================
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // ==============================================
+    // INITIALIZATION
+    // ==============================================
+    
+    window.appRouter = new AppRouter();
+    window.vnCalculator = new VNCalculator();
+  </script>
+</body>
+</html>
